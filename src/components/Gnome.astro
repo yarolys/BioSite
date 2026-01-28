@@ -1,0 +1,815 @@
+---
+// Gnome system: house, gnome(s), input prompt
+---
+
+<!-- Gnome House -->
+<div id="gnome-house" class="gnome-house" aria-hidden="true">
+  <div class="house-roof"></div>
+  <div class="house-body">
+    <div class="house-door" id="house-door"></div>
+    <div class="house-window"></div>
+  </div>
+  <div class="house-label">Дом Ярослава</div>
+</div>
+
+<!-- Input prompt -->
+<div id="gnome-prompt" class="gnome-prompt">
+  <p class="gnome-prompt-hint">
+    Пришли с миром? Напишите <b>я работодатель, не волнуйся</b><br>
+    Или, если не с миром... напишите <b>я злюка</b>
+  </p>
+  <input
+    type="text"
+    id="gnome-input"
+    class="gnome-input"
+    placeholder="Напишите сюда..."
+    autocomplete="off"
+  />
+</div>
+
+<!-- Main gnome -->
+<div id="gnome-container" class="gnome-container" aria-hidden="true" style="display:none;">
+  <div class="gnome-speech" id="gnome-speech"></div>
+  <div class="gnome-name">Ярослав</div>
+  <div class="gnome">
+    <div class="gnome-hat"></div>
+    <div class="gnome-face">
+      <div class="gnome-eyes">
+        <div class="gnome-eye left"></div>
+        <div class="gnome-eye right"></div>
+      </div>
+      <div class="gnome-nose"></div>
+      <div class="gnome-beard"></div>
+    </div>
+    <div class="gnome-body"></div>
+    <div class="gnome-legs">
+      <div class="gnome-leg left"></div>
+      <div class="gnome-leg right"></div>
+    </div>
+  </div>
+</div>
+
+<!-- Extra gnome army container -->
+<div id="gnome-army" aria-hidden="true"></div>
+
+<style is:global>
+  /* ===== HOUSE ===== */
+  .gnome-house {
+    position: fixed;
+    bottom: 20px;
+    left: 30px;
+    z-index: 9998;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    pointer-events: none;
+  }
+
+  .house-roof {
+    width: 0;
+    height: 0;
+    border-left: 45px solid transparent;
+    border-right: 45px solid transparent;
+    border-bottom: 35px solid #a0522d;
+    filter: drop-shadow(0 -2px 3px rgba(0,0,0,0.2));
+  }
+
+  .house-body {
+    width: 70px;
+    height: 50px;
+    background: #deb887;
+    border: 2px solid #a0522d;
+    position: relative;
+    display: flex;
+    align-items: flex-end;
+    justify-content: center;
+    gap: 8px;
+    padding-bottom: 4px;
+    box-shadow: inset 0 -5px 10px rgba(0,0,0,0.1);
+  }
+
+  .house-door {
+    width: 20px;
+    height: 30px;
+    background: #8b4513;
+    border-radius: 10px 10px 0 0;
+    border: 1.5px solid #5a2d0c;
+    position: relative;
+    transition: background 0.3s;
+  }
+
+  .house-door.open {
+    background: #2c1810;
+  }
+
+  .house-door::after {
+    content: '';
+    width: 4px;
+    height: 4px;
+    background: #f1c40f;
+    border-radius: 50%;
+    position: absolute;
+    right: 3px;
+    top: 50%;
+    transform: translateY(-50%);
+  }
+
+  .house-window {
+    width: 16px;
+    height: 16px;
+    background: #87ceeb;
+    border: 1.5px solid #a0522d;
+    border-radius: 2px;
+    margin-bottom: 8px;
+    box-shadow: inset 0 0 4px rgba(255,255,200,0.5);
+  }
+
+  .house-label {
+    font-size: 9px;
+    color: var(--text-muted, #64748b);
+    margin-top: 4px;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  /* ===== PROMPT ===== */
+  .gnome-prompt {
+    position: fixed;
+    bottom: 110px;
+    left: 15px;
+    z-index: 9999;
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    pointer-events: auto;
+    max-width: 280px;
+  }
+
+  .gnome-prompt.hidden {
+    display: none;
+  }
+
+  .gnome-prompt-hint {
+    background: var(--surface, #fff);
+    border: 1px solid var(--border, #e2e8f0);
+    color: var(--text-muted, #64748b);
+    padding: 10px 12px;
+    border-radius: 12px;
+    font-size: 11px;
+    line-height: 1.5;
+    box-shadow: 0 4px 12px rgba(0,0,0,0.1);
+  }
+
+  .gnome-prompt-hint b {
+    color: var(--color-accent, #6366f1);
+  }
+
+  .gnome-input {
+    padding: 8px 12px;
+    border: 2px solid var(--border, #e2e8f0);
+    border-radius: 10px;
+    font-size: 13px;
+    background: var(--surface, #fff);
+    color: var(--text, #1e293b);
+    outline: none;
+    transition: border-color 0.2s;
+  }
+
+  .gnome-input:focus {
+    border-color: var(--color-accent, #6366f1);
+  }
+
+  /* ===== GNOME ===== */
+  .gnome-container {
+    position: fixed;
+    z-index: 9999;
+    pointer-events: none;
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .gnome-name {
+    background: linear-gradient(180deg, #1a1a1a 0%, #333 100%);
+    color: #fff;
+    font-family: 'Press Start 2P', monospace;
+    font-size: 9px;
+    padding: 2px 6px;
+    border-radius: 2px;
+    margin-bottom: 2px;
+    text-shadow: 1px 1px 0 #000;
+    white-space: nowrap;
+    border: 1px solid #000;
+    box-shadow: 0 2px 4px rgba(0,0,0,0.3);
+  }
+
+  .gnome {
+    width: 40px;
+    height: 60px;
+    position: relative;
+    transform-origin: bottom center;
+  }
+
+  .gnome-hat {
+    width: 0;
+    height: 0;
+    border-left: 15px solid transparent;
+    border-right: 15px solid transparent;
+    border-bottom: 25px solid #e74c3c;
+    position: absolute;
+    top: -20px;
+    left: 50%;
+    transform: translateX(-50%);
+    filter: drop-shadow(0 2px 2px rgba(0,0,0,0.2));
+  }
+
+  .gnome-hat::after {
+    content: '';
+    position: absolute;
+    width: 8px;
+    height: 8px;
+    background: #f1c40f;
+    border-radius: 50%;
+    top: 20px;
+    left: -4px;
+  }
+
+  .gnome-face {
+    width: 30px;
+    height: 25px;
+    background: #fdbf6f;
+    border-radius: 50% 50% 45% 45%;
+    position: absolute;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: inset 0 -3px 6px rgba(0,0,0,0.1);
+  }
+
+  .gnome-eyes {
+    display: flex;
+    justify-content: space-between;
+    padding: 6px 5px 0;
+  }
+
+  .gnome-eye {
+    width: 6px;
+    height: 6px;
+    background: #2c3e50;
+    border-radius: 50%;
+    position: relative;
+  }
+
+  .gnome-eye::after {
+    content: '';
+    position: absolute;
+    width: 2px;
+    height: 2px;
+    background: #fff;
+    border-radius: 50%;
+    top: 1px;
+    left: 1px;
+  }
+
+  .gnome-nose {
+    width: 10px;
+    height: 10px;
+    background: #e8a855;
+    border-radius: 50%;
+    position: absolute;
+    bottom: 8px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .gnome-beard {
+    width: 28px;
+    height: 20px;
+    background: #ecf0f1;
+    border-radius: 0 0 50% 50%;
+    position: absolute;
+    bottom: -15px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .gnome-body {
+    width: 28px;
+    height: 20px;
+    background: #3498db;
+    border-radius: 8px 8px 0 0;
+    position: absolute;
+    top: 32px;
+    left: 50%;
+    transform: translateX(-50%);
+    box-shadow: inset 0 -3px 6px rgba(0,0,0,0.15);
+  }
+
+  .gnome-body::before {
+    content: '';
+    position: absolute;
+    width: 6px;
+    height: 6px;
+    background: #f1c40f;
+    border-radius: 50%;
+    top: 5px;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .gnome-legs {
+    display: flex;
+    justify-content: center;
+    gap: 4px;
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+  }
+
+  .gnome-leg {
+    width: 10px;
+    height: 14px;
+    background: #8b4513;
+    border-radius: 0 0 4px 4px;
+    transform-origin: top center;
+  }
+
+  .gnome-container.walking .gnome-leg.left {
+    animation: walkLeft 0.3s ease-in-out infinite;
+  }
+
+  .gnome-container.walking .gnome-leg.right {
+    animation: walkRight 0.3s ease-in-out infinite;
+  }
+
+  @keyframes walkLeft {
+    0%, 100% { transform: rotate(-15deg); }
+    50% { transform: rotate(15deg); }
+  }
+
+  @keyframes walkRight {
+    0%, 100% { transform: rotate(15deg); }
+    50% { transform: rotate(-15deg); }
+  }
+
+  .gnome-container.angry .gnome {
+    animation: angry 0.1s ease-in-out infinite;
+  }
+
+  @keyframes angry {
+    0%, 100% { transform: translateX(-2px) rotate(-5deg); }
+    50% { transform: translateX(2px) rotate(5deg); }
+  }
+
+  .gnome-speech {
+    position: absolute;
+    bottom: 100%;
+    left: 50%;
+    transform: translateX(-50%);
+    background: #fff;
+    color: #333;
+    padding: 6px 10px;
+    border-radius: 10px;
+    font-size: 11px;
+    font-weight: 600;
+    white-space: nowrap;
+    opacity: 0;
+    transition: opacity 0.2s;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.15);
+    margin-bottom: 5px;
+  }
+
+  .gnome-speech::after {
+    content: '';
+    position: absolute;
+    bottom: -6px;
+    left: 50%;
+    transform: translateX(-50%);
+    border-left: 6px solid transparent;
+    border-right: 6px solid transparent;
+    border-top: 6px solid #fff;
+  }
+
+  .gnome-speech.visible {
+    opacity: 1;
+  }
+
+  .dark .gnome-speech {
+    background: #1e293b;
+    color: #e2e8f0;
+  }
+
+  .dark .gnome-speech::after {
+    border-top-color: #1e293b;
+  }
+
+  .gnome-container.flipped .gnome {
+    transform: scaleX(-1);
+  }
+
+  #gnome-army {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+  }
+
+  @media (max-width: 768px) {
+    .gnome-container, .gnome-house, .gnome-prompt, #gnome-army {
+      display: none !important;
+    }
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gnome-container, .gnome-house, .gnome-prompt, #gnome-army {
+      display: none !important;
+    }
+  }
+</style>
+
+<script>
+  const isMobile = window.innerWidth <= 768;
+  const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  if (!isMobile && !prefersReduced) {
+    const gnomeEl = document.getElementById('gnome-container') as HTMLElement;
+    const speechEl = document.getElementById('gnome-speech') as HTMLElement;
+    const houseEl = document.getElementById('gnome-house') as HTMLElement;
+    const doorEl = document.getElementById('house-door') as HTMLElement;
+    const promptEl = document.getElementById('gnome-prompt') as HTMLElement;
+    const inputEl = document.getElementById('gnome-input') as HTMLInputElement;
+    const armyEl = document.getElementById('gnome-army') as HTMLElement;
+
+    // House position (bottom-left)
+    const houseX = 65;
+    const houseY = window.innerHeight - 70;
+
+    let gnomeX = houseX;
+    let gnomeY = houseY;
+    let mouseX = window.innerWidth / 2;
+    let mouseY = window.innerHeight / 2;
+    let state: 'idle' | 'emerging' | 'chasing' | 'returning' | 'gone' | 'army' = 'idle';
+    let lastSpeech = 0;
+    let animFrame = 0;
+    let speechLocked = false;
+
+    const speed = 3;
+    const armySpeed = 4;
+    const catchDist = 50;
+
+    // Army gnome names
+    const armyNames = [
+      'git push -f', 'rm -rf /', 'sudo !!', 'DROP TABLE',
+      'segfault', ':wq!', 'pip install', 'npm audit',
+      'CORS Error', '404'
+    ];
+
+    // Army gnome state
+    interface ArmyGnome {
+      el: HTMLElement;
+      x: number;
+      y: number;
+      speechEl: HTMLElement;
+      lastSpeech: number;
+    }
+    let armyGnomes: ArmyGnome[] = [];
+
+    const phrases = {
+      chasing: ["Эй! Стой!", "Куда?!", "Это мой дом!", "Не убегай!", "Я тебя догоню!", "Вернись!"],
+      caught: ["Уходи отсюда!", "Пшёл вон!", "Моя территория!", "Кыш-кыш!", "Не трогай ничего!", "Вали давай!"],
+      army: ["АТАКА!", "В бой!", "За Ярослава!", "Код — сила!", "Merge conflict!", "Stack overflow!", "Деплоим!", "CI упал!", "Hotfix!!!", "Ревью кода!"]
+    };
+
+    function showSpeechOn(el: HTMLElement, text: string, duration = 1500) {
+      el.textContent = text;
+      el.classList.add('visible');
+      if (duration > 0) {
+        setTimeout(() => el.classList.remove('visible'), duration);
+      }
+    }
+
+    function lockMainSpeech(text: string, duration: number) {
+      speechLocked = true;
+      speechEl.textContent = text;
+      speechEl.classList.add('visible');
+      if (duration > 0) {
+        setTimeout(() => {
+          speechEl.classList.remove('visible');
+          speechLocked = false;
+        }, duration);
+      }
+      // duration 0 = until manually cleared
+    }
+
+    function clearMainSpeech() {
+      speechEl.classList.remove('visible');
+      speechLocked = false;
+    }
+
+    function showSpeech(type: 'chasing' | 'caught') {
+      if (speechLocked) return;
+      const now = Date.now();
+      if (now - lastSpeech < 2000) return;
+      const list = phrases[type];
+      showSpeechOn(speechEl, list[Math.floor(Math.random() * list.length)]);
+      lastSpeech = now;
+    }
+
+    function posGnome(el: HTMLElement, x: number, y: number) {
+      el.style.left = `${x - 20}px`;
+      el.style.top = `${y - 40}px`;
+    }
+
+    function flipGnome(el: HTMLElement, dx: number) {
+      if (dx < 0) el.classList.add('flipped');
+      else el.classList.remove('flipped');
+    }
+
+    // Emerge from house
+    function startEmerge() {
+      doorEl.classList.add('open');
+      gnomeX = houseX;
+      gnomeY = houseY;
+      gnomeEl.style.display = 'flex';
+      posGnome(gnomeEl, gnomeX, gnomeY);
+      state = 'emerging';
+
+      // brief pause then chase
+      setTimeout(() => {
+        state = 'chasing';
+      }, 600);
+    }
+
+    // Return to house
+    function startReturn() {
+      state = 'returning';
+    }
+
+    function createArmyGnome(name: string, index: number): ArmyGnome {
+      const el = document.createElement('div');
+      el.className = 'gnome-container';
+      el.style.display = 'flex';
+      el.innerHTML = `
+        <div class="gnome-speech"></div>
+        <div class="gnome-name">${name}</div>
+        <div class="gnome">
+          <div class="gnome-hat" style="border-bottom-color: hsl(${index * 36}, 70%, 50%)"></div>
+          <div class="gnome-face">
+            <div class="gnome-eyes">
+              <div class="gnome-eye left"></div>
+              <div class="gnome-eye right"></div>
+            </div>
+            <div class="gnome-nose"></div>
+            <div class="gnome-beard"></div>
+          </div>
+          <div class="gnome-body" style="background: hsl(${index * 36 + 120}, 60%, 50%)"></div>
+          <div class="gnome-legs">
+            <div class="gnome-leg left"></div>
+            <div class="gnome-leg right"></div>
+          </div>
+        </div>
+      `;
+      armyEl.appendChild(el);
+      const sp = el.querySelector('.gnome-speech') as HTMLElement;
+      return { el, x: houseX + (Math.random() - 0.5) * 30, y: houseY, speechEl: sp, lastSpeech: 0 };
+    }
+
+    function spawnArmy() {
+      doorEl.classList.add('open');
+      state = 'army';
+
+      // Also make main gnome angry
+      gnomeEl.classList.add('angry');
+      lockMainSpeech("АРМИЯ, ЗА МНОЙ!", 5000);
+
+      let i = 0;
+      const interval = setInterval(() => {
+        if (i >= 10) { clearInterval(interval); return; }
+        const g = createArmyGnome(armyNames[i], i);
+        armyGnomes.push(g);
+        posGnome(g.el, g.x, g.y);
+        i++;
+      }, 200);
+    }
+
+    // Secret horde names
+    const hordeNames = [
+      'git push -f', 'rm -rf /', 'sudo !!', 'DROP TABLE', 'segfault',
+      ':wq!', 'pip install', 'npm audit', 'CORS Error', '404',
+      'undefined', 'NaN', 'null', '[object]', 'TypeError',
+      'git rebase', 'merge hell', 'TODO: fix', '// hack', 'legacy',
+      'OOM Kill', 'exit(1)', 'panic!', 'SIGKILL', 'deadlock',
+      'race cond', 'leak', 'overflow', 'inf loop', 'bus error',
+      'chmod 777', 'eval()', '.env push', 'no tests', 'prod debug',
+      'hotfix v99', 'revert^10', 'force gc', 'monkey patch', 'regex',
+      'callback h', 'promise?', 'async void', 'any', 'never',
+      'goto fail', 'off by 1', 'heisenbug', 'linter off', 'no docs',
+      'spaghetti', 'big O(n!)', 'sleep(999)', 'magic num', 'stringly',
+      'god class', 'blob', '10x dev', 'yaml hell', 'dep hell',
+      'polyfill', 'shim', 'webpack 1', 'babel rc', 'postcss',
+      'Docker OOM', 'k8s crash', 'DNS again', 'SSL expire', 'port 80',
+      'cron fail', 'race win', 'data loss', 'backup?', 'rollback!',
+      'schema v42', 'migration', 'seed fail', 'index scan', 'N+1',
+      'cache miss', 'stale data', 'ttl=0', 'cold start', 'timeout',
+      'rate limit', '502 bad gw', '503', 'retry x99', 'circuit brk',
+      'log flood', 'alert spam', 'on call', 'escalated', 'postmortem',
+      'tech debt', 'sprint 999', 'blocker', 'wontfix', 'LGTM'
+    ];
+
+    function spawnHorde() {
+      doorEl.classList.add('open');
+      state = 'army';
+
+      gnomeEl.classList.add('angry');
+      lockMainSpeech("БУЛИЧКААААА!!!", 10000);
+
+      let i = 0;
+      const interval = setInterval(() => {
+        if (i >= 100) { clearInterval(interval); return; }
+        const idx = armyGnomes.length;
+        const g = createArmyGnome(hordeNames[i % hordeNames.length], idx);
+        armyGnomes.push(g);
+        posGnome(g.el, g.x, g.y);
+        i++;
+      }, 50);
+    }
+
+    // Main loop
+    function update() {
+      if (state === 'chasing') {
+        const dx = mouseX - gnomeX;
+        const dy = mouseY - gnomeY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist > 10) {
+          gnomeX += (dx / dist) * speed;
+          gnomeY += (dy / dist) * speed;
+          gnomeEl.classList.add('walking');
+          gnomeEl.classList.remove('angry');
+          flipGnome(gnomeEl, dx);
+          if (Math.random() < 0.005) showSpeech('chasing');
+        } else {
+          gnomeEl.classList.remove('walking');
+        }
+
+        if (dist < catchDist) {
+          gnomeEl.classList.add('angry');
+          gnomeEl.classList.remove('walking');
+          if (Math.random() < 0.02) showSpeech('caught');
+        }
+
+        posGnome(gnomeEl, gnomeX, gnomeY);
+      }
+
+      if (state === 'returning') {
+        const dx = houseX - gnomeX;
+        const dy = houseY - gnomeY;
+        const dist = Math.sqrt(dx * dx + dy * dy);
+
+        if (dist > 5) {
+          gnomeX += (dx / dist) * speed;
+          gnomeY += (dy / dist) * speed;
+          gnomeEl.classList.add('walking');
+          gnomeEl.classList.remove('angry');
+          flipGnome(gnomeEl, dx);
+        } else {
+          // Arrived home
+          clearMainSpeech();
+          gnomeEl.style.display = 'none';
+          gnomeEl.classList.remove('walking');
+          doorEl.classList.remove('open');
+          state = 'gone';
+        }
+
+        posGnome(gnomeEl, gnomeX, gnomeY);
+      }
+
+      if (state === 'army') {
+        // Main gnome still chases
+        const dx0 = mouseX - gnomeX;
+        const dy0 = mouseY - gnomeY;
+        const dist0 = Math.sqrt(dx0 * dx0 + dy0 * dy0);
+        if (dist0 > 10) {
+          gnomeX += (dx0 / dist0) * speed;
+          gnomeY += (dy0 / dist0) * speed;
+          gnomeEl.classList.add('walking');
+          flipGnome(gnomeEl, dx0);
+        }
+        if (dist0 < catchDist) {
+          gnomeEl.classList.add('angry');
+          gnomeEl.classList.remove('walking');
+        }
+        posGnome(gnomeEl, gnomeX, gnomeY);
+
+        // All bodies for separation (main gnome + army)
+        const allBodies = [{ x: gnomeX, y: gnomeY, isMain: true }, ...armyGnomes.map(g => ({ x: g.x, y: g.y, isMain: false }))];
+        const separationRadius = 110;
+        const separationForce = 6;
+
+        // Army chases too
+        for (let i = 0; i < armyGnomes.length; i++) {
+          const g = armyGnomes[i];
+
+          // Chase cursor
+          let moveX = mouseX - g.x;
+          let moveY = mouseY - g.y;
+          const dist = Math.sqrt(moveX * moveX + moveY * moveY);
+
+          // Separation: push away from other gnomes
+          let sepX = 0;
+          let sepY = 0;
+
+          // vs main gnome
+          const dmx = g.x - gnomeX;
+          const dmy = g.y - gnomeY;
+          const dmDist = Math.sqrt(dmx * dmx + dmy * dmy);
+          if (dmDist < separationRadius && dmDist > 0.1) {
+            sepX += (dmx / dmDist) * separationForce * (1 - dmDist / separationRadius);
+            sepY += (dmy / dmDist) * separationForce * (1 - dmDist / separationRadius);
+          }
+
+          // vs other army gnomes
+          for (let j = 0; j < armyGnomes.length; j++) {
+            if (i === j) continue;
+            const other = armyGnomes[j];
+            const ddx = g.x - other.x;
+            const ddy = g.y - other.y;
+            const dd = Math.sqrt(ddx * ddx + ddy * ddy);
+            if (dd < separationRadius && dd > 0.1) {
+              sepX += (ddx / dd) * separationForce * (1 - dd / separationRadius);
+              sepY += (ddy / dd) * separationForce * (1 - dd / separationRadius);
+            }
+          }
+
+          if (dist > 15) {
+            g.x += (moveX / dist) * armySpeed + sepX;
+            g.y += (moveY / dist) * armySpeed + sepY;
+            g.el.classList.add('walking');
+            g.el.classList.remove('angry');
+            flipGnome(g.el, moveX);
+          } else {
+            // Still apply separation even when close to cursor
+            g.x += sepX;
+            g.y += sepY;
+          }
+
+          if (dist < catchDist + 20) {
+            g.el.classList.add('angry');
+            g.el.classList.remove('walking');
+            const now = Date.now();
+            if (now - g.lastSpeech > 3000 && Math.random() < 0.03) {
+              showSpeechOn(g.speechEl, phrases.army[Math.floor(Math.random() * phrases.army.length)]);
+              g.lastSpeech = now;
+            }
+          }
+
+          posGnome(g.el, g.x, g.y);
+        }
+      }
+
+      animFrame = requestAnimationFrame(update);
+    }
+
+    // Mouse tracking
+    document.addEventListener('mousemove', (e) => {
+      mouseX = e.clientX;
+      mouseY = e.clientY;
+    });
+
+    // Input handling
+    inputEl.addEventListener('keydown', (e) => {
+      if (e.key !== 'Enter') return;
+      const val = inputEl.value.trim().toLowerCase();
+
+      if (val === 'я работодатель, не волнуйся' || val === 'я работодатель не волнуйся') {
+        promptEl.classList.add('hidden');
+
+        // Gnome stops
+        gnomeEl.classList.remove('walking', 'angry');
+
+        lockMainSpeech("а... тогда хорошо, пасибочки :з", 0);
+
+        setTimeout(() => {
+          startReturn();
+        }, 2000);
+      }
+
+      if (val === 'я злюка') {
+        promptEl.classList.add('hidden');
+        spawnArmy();
+      }
+
+      if (val === 'буличка') {
+        promptEl.classList.add('hidden');
+        spawnHorde();
+      }
+    });
+
+    // Start: gnome emerges from house on page load
+    setTimeout(() => {
+      startEmerge();
+    }, 1000);
+
+    update();
+  }
+</script>

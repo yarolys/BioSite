@@ -1,0 +1,35 @@
+---
+import { aboutSection } from "../data/profile";
+import FloatingCodeBg from "./FloatingCodeBg.astro";
+---
+
+<section id="about" class="section relative">
+  <FloatingCodeBg />
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <h2 class="section-title text-[var(--text)]" data-animate>
+      {aboutSection.title}
+    </h2>
+
+    <div class="grid md:grid-cols-2 gap-8">
+      <!-- Text content -->
+      <div class="space-y-4" data-animate>
+        {
+          aboutSection.paragraphs.map((paragraph) => (
+            <p class="text-[var(--text-muted)] leading-relaxed">{paragraph}</p>
+          ))
+        }
+      </div>
+
+      <!-- Skills -->
+      <div data-animate>
+        <h3 class="text-lg font-semibold text-[var(--text)] mb-4">
+          Ключевые навыки
+        </h3>
+        <div class="flex flex-wrap gap-2">
+          {aboutSection.skills.map((skill) => <span class="badge">{skill}</span>)}
+        </div>
+      </div>
+    </div>
+  </div>
+</section>

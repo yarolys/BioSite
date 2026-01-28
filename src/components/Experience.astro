@@ -1,0 +1,66 @@
+---
+import { experienceSection } from "../data/profile";
+import FloatingCodeBg from "./FloatingCodeBg.astro";
+---
+
+<section id="experience" class="section bg-[var(--surface)] relative">
+  <FloatingCodeBg />
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <h2 class="section-title text-[var(--text)]" data-animate>
+      {experienceSection.title}
+    </h2>
+
+    <div class="relative">
+      <!-- Timeline line -->
+      <div
+        class="absolute left-0 md:left-1/2 top-0 bottom-0 w-px bg-[var(--border)] transform md:-translate-x-1/2 hidden md:block"
+        aria-hidden="true"
+      >
+      </div>
+
+      <div class="space-y-8">
+        {
+          experienceSection.items.map((item, index) => (
+            <div
+              class={`relative md:flex ${index % 2 === 0 ? "md:flex-row" : "md:flex-row-reverse"}`}
+              data-animate
+            >
+              {/* Timeline dot */}
+              <div class="absolute left-0 md:left-1/2 top-6 w-3 h-3 rounded-full bg-[var(--color-accent)] transform md:-translate-x-1/2 hidden md:block" />
+
+              {/* Content card */}
+              <div class="md:w-1/2 md:px-8">
+                <div class="card p-6">
+                  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-2 mb-4">
+                    <div>
+                      <h3 class="text-lg font-semibold text-[var(--text)]">
+                        {item.position}
+                      </h3>
+                      <p class="text-[var(--color-accent)] font-medium">
+                        {item.company}
+                      </p>
+                    </div>
+                    <span class="text-sm text-[var(--text-muted)] whitespace-nowrap">
+                      {item.period}
+                    </span>
+                  </div>
+
+                  <p class="text-[var(--text-muted)] mb-4">{item.description}</p>
+
+                  <div class="flex flex-wrap gap-2">
+                    {item.technologies.map((tech) => (
+                      <span class="px-2 py-1 text-xs font-medium rounded-md bg-[var(--bg)] text-[var(--text-muted)] border border-[var(--border)]">
+                        {tech}
+                      </span>
+                    ))}
+                  </div>
+                </div>
+              </div>
+            </div>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</section>

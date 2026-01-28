@@ -1,0 +1,76 @@
+---
+import { educationSection } from "../data/profile";
+import FloatingCodeBg from "./FloatingCodeBg.astro";
+---
+
+<section id="education" class="section relative">
+  <FloatingCodeBg />
+
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <h2 class="section-title text-[var(--text)]" data-animate>
+      {educationSection.title}
+    </h2>
+
+    <div class="grid gap-6 md:grid-cols-2">
+      {
+        educationSection.items.map((item) => (
+          <div class="card p-6" data-animate>
+            <div class="flex items-start gap-4">
+              {/* Icon */}
+              <div class="flex-shrink-0 w-12 h-12 rounded-lg bg-gradient-to-br from-[var(--color-accent)] to-purple-500 flex items-center justify-center">
+                <svg
+                  class="w-6 h-6 text-white"
+                  fill="none"
+                  stroke="currentColor"
+                  viewBox="0 0 24 24"
+                  aria-hidden="true"
+                >
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 14l9-5-9-5-9 5 9 5z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 14l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14z"
+                  />
+                  <path
+                    stroke-linecap="round"
+                    stroke-linejoin="round"
+                    stroke-width="2"
+                    d="M12 14l9-5-9-5-9 5 9 5zm0 0l6.16-3.422a12.083 12.083 0 01.665 6.479A11.952 11.952 0 0012 20.055a11.952 11.952 0 00-6.824-2.998 12.078 12.078 0 01.665-6.479L12 14zm-4 6v-7.5l4-2.222"
+                  />
+                </svg>
+              </div>
+
+              {/* Content */}
+              <div class="flex-1 min-w-0">
+                <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-1 mb-2">
+                  <h3 class="text-lg font-semibold text-[var(--text)] truncate">
+                    {item.institution}
+                  </h3>
+                  <span class="text-sm text-[var(--text-muted)] whitespace-nowrap">
+                    {item.period}
+                  </span>
+                </div>
+
+                <p class="text-[var(--color-accent)] font-medium mb-1">
+                  {item.degree}
+                </p>
+
+                <p class="text-sm text-[var(--text-muted)] mb-3">{item.field}</p>
+
+                <p class="text-[var(--text-muted)] text-sm leading-relaxed">
+                  {item.description}
+                </p>
+              </div>
+            </div>
+          </div>
+        ))
+      }
+    </div>
+  </div>
+</section>

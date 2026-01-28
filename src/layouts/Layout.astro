@@ -1,0 +1,208 @@
+---
+import "../styles/global.css";
+import { seoData } from "../data/profile";
+import Gnome from "../components/Gnome.astro";
+
+interface Props {
+  title?: string;
+  description?: string;
+}
+
+const { title = seoData.title, description = seoData.description } = Astro.props;
+---
+
+<!doctype html>
+<html lang="ru">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content={description} />
+    <meta name="author" content="Лысов Ярослав" />
+
+    <!-- Open Graph -->
+    <meta property="og:type" content="website" />
+    <meta property="og:url" content={seoData.url} />
+    <meta property="og:title" content={title} />
+    <meta property="og:description" content={description} />
+    <meta property="og:image" content={`${seoData.url}${seoData.image}`} />
+    <meta property="og:locale" content="ru_RU" />
+
+    <!-- Twitter Card -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta name="twitter:title" content={title} />
+    <meta name="twitter:description" content={description} />
+    <meta name="twitter:image" content={`${seoData.url}${seoData.image}`} />
+
+    <!-- Favicon -->
+    <link rel="icon" type="image/svg+xml" href="/favicon.svg" />
+    <link rel="apple-touch-icon" href="/apple-touch-icon.png" />
+
+    <!-- Preload fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap"
+      rel="stylesheet"
+    />
+
+    <title>{title}</title>
+
+    <!-- Theme initialization (prevents flash) -->
+    <script is:inline>
+      const theme = (() => {
+        if (typeof localStorage !== "undefined" && localStorage.getItem("theme")) {
+          return localStorage.getItem("theme");
+        }
+        if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+          return "dark";
+        }
+        return "light";
+      })();
+      if (theme === "dark") {
+        document.documentElement.classList.add("dark");
+      }
+    </script>
+  </head>
+  <body class="min-h-screen">
+    <!-- Cursor glow effect -->
+    <div id="cursor-glow" class="cursor-glow" aria-hidden="true"></div>
+
+    <!-- Gnome that chases cursor -->
+    <Gnome />
+
+    <slot />
+
+    <!-- Theme toggle and effects script -->
+    <script>
+      // Cursor glow effect
+      const glow = document.getElementById("cursor-glow");
+      const prefersReducedMotion = window.matchMedia(
+        "(prefers-reduced-motion: reduce)"
+      ).matches;
+      const isMobile = window.innerWidth <= 768;
+
+      if (glow && !prefersReducedMotion && !isMobile) {
+        document.addEventListener("mousemove", (e) => {
+          glow.style.left = `${e.clientX}px`;
+          glow.style.top = `${e.clientY}px`;
+          glow.classList.add("visible");
+        });
+
+        document.addEventListener("mouseleave", () => {
+          glow.classList.remove("visible");
+        });
+      }
+
+      // Theme toggle functionality
+      function setupThemeToggle() {
+        const toggles = document.querySelectorAll("[data-theme-toggle]");
+
+        toggles.forEach((toggle) => {
+          toggle.addEventListener("click", () => {
+            const isDark = document.documentElement.classList.toggle("dark");
+            localStorage.setItem("theme", isDark ? "dark" : "light");
+
+            // Update icons
+            document.querySelectorAll("[data-theme-icon]").forEach((icon) => {
+              const iconType = icon.getAttribute("data-theme-icon");
+              if (iconType === "sun") {
+                icon.classList.toggle("hidden", !isDark);
+              } else if (iconType === "moon") {
+                icon.classList.toggle("hidden", isDark);
+              }
+            });
+          });
+        });
+
+        // Initial icon state
+        const isDark = document.documentElement.classList.contains("dark");
+        document.querySelectorAll("[data-theme-icon]").forEach((icon) => {
+          const iconType = icon.getAttribute("data-theme-icon");
+          if (iconType === "sun") {
+            icon.classList.toggle("hidden", !isDark);
+          } else if (iconType === "moon") {
+            icon.classList.toggle("hidden", isDark);
+          }
+        });
+      }
+
+      // Mobile menu functionality
+      function setupMobileMenu() {
+        const menuButton = document.getElementById("mobile-menu-button");
+        const mobileMenu = document.getElementById("mobile-menu");
+        const menuLinks = mobileMenu?.querySelectorAll("a");
+
+        if (menuButton && mobileMenu) {
+          menuButton.addEventListener("click", () => {
+            const isOpen = mobileMenu.classList.toggle("hidden");
+            menuButton.setAttribute("aria-expanded", String(!isOpen));
+          });
+
+          menuLinks?.forEach((link) => {
+            link.addEventListener("click", () => {
+              mobileMenu.classList.add("hidden");
+              menuButton.setAttribute("aria-expanded", "false");
+            });
+          });
+        }
+      }
+
+      // Parallax effect for hero card
+      function setupParallax() {
+        const card = document.querySelector(".parallax-card");
+        const container = document.querySelector(".parallax-container");
+
+        if (!card || !container || prefersReducedMotion || isMobile) return;
+
+        container.addEventListener("mousemove", (e: Event) => {
+          const mouseEvent = e as MouseEvent;
+          const rect = (container as HTMLElement).getBoundingClientRect();
+          const x = mouseEvent.clientX - rect.left;
+          const y = mouseEvent.clientY - rect.top;
+
+          const centerX = rect.width / 2;
+          const centerY = rect.height / 2;
+
+          const rotateX = ((y - centerY) / centerY) * -5;
+          const rotateY = ((x - centerX) / centerX) * 5;
+
+          (card as HTMLElement).style.transform = `rotateX(${rotateX}deg) rotateY(${rotateY}deg)`;
+        });
+
+        container.addEventListener("mouseleave", () => {
+          (card as HTMLElement).style.transform = "rotateX(0) rotateY(0)";
+        });
+      }
+
+      // Intersection Observer for animations
+      function setupScrollAnimations() {
+        if (prefersReducedMotion) return;
+
+        const observer = new IntersectionObserver(
+          (entries) => {
+            entries.forEach((entry) => {
+              if (entry.isIntersecting) {
+                entry.target.classList.add("animate-fade-in-up");
+                observer.unobserve(entry.target);
+              }
+            });
+          },
+          { threshold: 0.1 }
+        );
+
+        document.querySelectorAll("[data-animate]").forEach((el) => {
+          el.classList.add("opacity-0");
+          observer.observe(el);
+        });
+      }
+
+      // Initialize
+      document.addEventListener("DOMContentLoaded", () => {
+        setupThemeToggle();
+        setupMobileMenu();
+        setupParallax();
+        setupScrollAnimations();
+      });
+    </script>
+  </body>
+</html>

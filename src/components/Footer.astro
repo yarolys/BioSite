@@ -1,0 +1,31 @@
+---
+import { profile } from "../data/profile";
+
+const currentYear = new Date().getFullYear();
+---
+
+<footer class="py-8 border-t border-[var(--border)]">
+  <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8">
+    <div class="flex flex-col sm:flex-row items-center justify-between gap-4">
+      <p class="text-sm text-[var(--text-muted)]">
+        &copy; {currentYear} {profile.fullName}. Все права защищены.
+      </p>
+
+      <div class="flex items-center gap-4">
+        {
+          profile.socials.map((social) => (
+            <a
+              href={social.url}
+              target="_blank"
+              rel="noopener noreferrer"
+              class="text-[var(--text-muted)] hover:text-[var(--color-accent)] transition-colors text-sm"
+              aria-label={social.name}
+            >
+              {social.name}
+            </a>
+          ))
+        }
+      </div>
+    </div>
+  </div>
+</footer>

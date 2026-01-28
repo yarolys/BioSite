@@ -1,0 +1,19 @@
+---
+// Floating code symbols background
+const codeSymbols = [
+  "{ }",
+  "</>",
+  "def()",
+  "@router",
+  "async",
+  "await",
+  "=> { }",
+  "import",
+  "class:",
+  "SELECT *",
+];
+---
+
+<div class="floating-code-bg" aria-hidden="true">
+  {codeSymbols.map((symbol) => <span class="code-symbol">{symbol}</span>)}
+</div>
