@@ -1,13 +1,29 @@
 services:
+  npm:
+    image: jc21/nginx-proxy-manager:latest
+    container_name: nginx-proxy-manager
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "81:81"
+    volumes:
+      - npm_data:/data
+      - npm_letsencrypt:/etc/letsencrypt
+
   portfolio:
     build: .
     container_name: yarolys-portfolio
     restart: unless-stopped
-    ports:
-      - "80:80"
+    expose:
+      - "80"
     healthcheck:
       test: ["CMD", "wget", "--no-verbose", "--tries=1", "--spider", "http://localhost/"]
       interval: 30s
       timeout: 3s
       retries: 3
       start_period: 10s
+
+volumes:
+  npm_data:
+  npm_letsencrypt:
