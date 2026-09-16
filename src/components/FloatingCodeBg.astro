@@ -1,19 +1,54 @@
 ---
-// Floating code symbols background
-const codeSymbols = [
-  "{ }",
-  "</>",
-  "def()",
-  "@router",
-  "async",
-  "await",
-  "=> { }",
-  "import",
-  "class:",
-  "SELECT *",
+const symbols = [
+  { text: "{ }", x: "4%", duration: "46s", delay: "-12s", drift: "18px", tilt: "-9deg" },
+  { text: "</>", x: "14%", duration: "58s", delay: "-39s", drift: "-16px", tilt: "8deg" },
+  { text: "import", x: "20%", duration: "60s", delay: "-5s", drift: "20px", tilt: "-22deg" },
+  { text: "async", x: "28%", duration: "64s", delay: "-24s", drift: "22px", tilt: "-6deg" },
+  { text: "=>", x: "42%", duration: "52s", delay: "-46s", drift: "-12px", tilt: "7deg" },
+  { text: "return", x: "49%", duration: "59s", delay: "-18s", drift: "16px", tilt: "-15deg" },
+  { text: "await", x: "61%", duration: "61s", delay: "-8s", drift: "16px", tilt: "-8deg" },
+  { text: "fn()", x: "68%", duration: "57s", delay: "-46s", drift: "18px", tilt: "-20deg" },
+  { text: "def()", x: "74%", duration: "55s", delay: "-32s", drift: "-20px", tilt: "6deg" },
+  { text: "class:", x: "87%", duration: "62s", delay: "-49s", drift: "14px", tilt: "-7deg" },
+  { text: "</>", x: "96%", duration: "49s", delay: "-19s", drift: "-18px", tilt: "9deg" },
 ];
 ---
 
 <div class="floating-code-bg" aria-hidden="true">
-  {codeSymbols.map((symbol) => <span class="code-symbol">{symbol}</span>)}
+  {symbols.map((symbol) => <span class="code-symbol" style={`--x:${symbol.x};--duration:${symbol.duration};--delay:${symbol.delay};--drift:${symbol.drift};--tilt:${symbol.tilt}`}>{symbol.text}</span>)}
 </div>
+
+<script>
+  const background = document.querySelector('.floating-code-bg');
+  const syncVisibility = () => background?.classList.toggle('is-paused', document.hidden);
+  document.addEventListener('visibilitychange', syncVisibility);
+  syncVisibility();
+  // Each viewport-sized band belongs to the document, never to the screen.
+  const main = document.getElementById('main-content');
+  if (background instanceof HTMLElement && main) {
+    const template = [...background.children].map((node) => node.cloneNode(true) as HTMLElement);
+    let bandCount = 0;
+    let lastHeight = 0;
+    const fillPage = () => {
+      const height = Math.max(600, window.innerHeight);
+      const count = Math.ceil(main.offsetHeight / height);
+      if (count === bandCount && height === lastHeight) return;
+      bandCount = count;
+      lastHeight = height;
+      const fragment = document.createDocumentFragment();
+      for (let band = 0; band < count; band++) {
+        template.forEach((original, index) => {
+          const symbol = original.cloneNode(true) as HTMLElement;
+          symbol.style.setProperty('--band-top', `${band * height}px`);
+          symbol.style.setProperty('--fall-height', `${height}px`);
+          if (band) symbol.style.setProperty('--delay', `${-((band * 17 + index * 11) % 60)}s`);
+          fragment.append(symbol);
+        });
+      }
+      background.replaceChildren(fragment);
+    };
+    new ResizeObserver(fillPage).observe(main);
+    window.addEventListener('resize', fillPage);
+    fillPage();
+  }
+</script>

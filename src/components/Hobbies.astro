@@ -1,6 +1,5 @@
 ---
 import { hobbiesSection } from "../data/profile";
-import FloatingCodeBg from "./FloatingCodeBg.astro";
 
 const iconPaths: Record<string, string> = {
   code: "M10 20l4-16m4 4l4 4-4 4M6 16l-4-4 4-4",
@@ -14,9 +13,9 @@ const iconPaths: Record<string, string> = {
 ---
 
 <section id="hobbies" class="section bg-[var(--surface)] relative">
-  <FloatingCodeBg />
 
   <div class="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 relative z-10">
+    <p class="eyebrow section-kicker">04 / Вне работы</p>
     <h2 class="section-title text-[var(--text)]" data-animate>
       {hobbiesSection.title}
     </h2>

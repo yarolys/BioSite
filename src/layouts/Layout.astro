@@ -64,6 +64,7 @@ const { title = seoData.title, description = seoData.description } = Astro.props
     </script>
   </head>
   <body class="min-h-screen">
+    <a class="skip-link" href="#main-content">К содержанию</a>
     <!-- Cursor glow effect -->
     <div id="cursor-glow" class="cursor-glow" aria-hidden="true"></div>
 
@@ -71,6 +72,10 @@ const { title = seoData.title, description = seoData.description } = Astro.props
     <Gnome />
 
     <slot />
+
+    <script>
+      import "../scripts/playfulPhysics";
+    </script>
 
     <!-- Theme toggle and effects script -->
     <script>
