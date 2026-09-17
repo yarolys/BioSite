@@ -139,6 +139,7 @@ function tick(now: number) {
       if (target.bottom < 0 || target.top > innerHeight || !target.width) { restore(b); continue; }
       b.phase = 'walking'; b.walkStart = now;
       b.walkX = b.x < innerWidth / 2 ? -b.w / 2 - 15 : innerWidth + b.w / 2 + 15;
+      b.shell.style.setProperty('--walk-facing', target.left + target.width / 2 < b.walkX ? '-1' : '1');
       b.walkY = Math.min(innerHeight - b.h / 2 - 20, target.top + b.h / 2);
       b.walkAngle = clamp(b.angle % (Math.PI * 2), .2);
       b.shell.style.visibility = 'visible'; b.shell.classList.add('is-walking');

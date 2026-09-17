@@ -419,7 +419,7 @@ a, button { -webkit-tap-highlight-color: transparent; }
 .physics-dragging, .physics-dragging * { cursor: grabbing !important; user-select: none !important; }
 .physics-body { position: fixed; left: 0; top: 0; z-index: 10010; pointer-events: none; transform-origin: center; }
 .physics-visual { width: 100%; height: 100%; }
-.physics-legs { display: none; position: absolute; top: 100%; left: 50%; gap: 5px; transform: translateX(-50%) scale(var(--leg-scale, 1)); transform-origin: top; }
+.physics-legs { display: none; position: absolute; top: 100%; left: 50%; gap: 5px; transform: translateX(-50%) scale(var(--leg-scale, 1)) scaleX(var(--walk-facing, 1)); transform-origin: top; }
 .physics-legs i { width: 4px; height: 12px; background: var(--color-accent); border-radius: 3px; transform-origin: top; }
 .physics-legs i::after { content: ''; display: block; width: 9px; height: 4px; background: var(--color-accent); position: absolute; bottom: -1px; border-radius: 4px; }
 .is-walking .physics-legs { display: flex; }
